@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anti-Engagement-Farm</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="popup-container">
+    <button id="toggleButton" class="toggle-off">
+      Turn ON
+    </button>
+
+    <section class="log-section">
+      <h2>Blocked Tweets</h2>
+      <ul id="logList" class="log-list">
+        <li class="empty">— No tweets hidden yet —</li>
+      </ul>
+      <button id="clearButton" class="clear-button">
+        Clear Log
+      </button>
+    </section>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
