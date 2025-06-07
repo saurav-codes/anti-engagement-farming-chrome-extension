@@ -5,15 +5,13 @@
  * avoid duplicate API calls.
  */
 
-console.log('[AEF] background worker loaded');
-const BACKEND_URL = 'https://your-backend.example.com/api/classify'; // TODO: replace with your real endpoint
+const BACKEND_URL = 'http://localhost:8000/api/classify/'; // Local backend endpoint
 
 // Simple in-memory cache: text -> boolean (hide or not)
 const classificationCache = new Map();
 
 // On extension install, initialize storage defaults
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('[AEF] onInstalled: initializing storage');
   chrome.storage.local.set({
     isEnabled: false,
     blockedTweets: []
@@ -22,9 +20,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 // Listen for messages from content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('[AEF] onMessage received:', message);
   if (message.action === 'classifyTweet' && typeof message.text === 'string') {
-    console.log('[AEF] classifyTweet request for snippet:', message.text.slice(0,50));
     // Check if filtering is currently enabled
     chrome.storage.local.get('isEnabled', ({ isEnabled }) => {
       if (!isEnabled) {
@@ -54,15 +50,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
  * @returns {Promise<boolean>} - True if the tweet should be hidden
  */
 async function classifyTweet(text) {
-  console.log('[AEF] classifyTweet invoked for snippet:', text.slice(0,50));
   // Return cached result if available
   if (classificationCache.has(text)) {
-    console.log('[AEF] classifyTweet: cache hit');
+    console.log('[AEF] classifyTweet: cache hit so returning cached result for:', text.slice(0, 50));
     return classificationCache.get(text);
   }
 
   let shouldHide = false;
-  console.log('[AEF] classifyTweet: cache miss, calling backend');
   try {
     const response = await fetch(BACKEND_URL, {
       method: 'POST',

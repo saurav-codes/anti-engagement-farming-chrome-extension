@@ -23,8 +23,6 @@
 
   // Hide a tweet element and record its info
   async function hideAndLog(articleEl, tweetInfo) {
-    console.log('Hiding tweet:', tweetInfo);
-    console.log('[AEF] hideAndLog: hiding tweet', tweetInfo);
     articleEl.style.display = 'none';
     try {
       const { blockedTweets = [] } = await chrome.storage.local.get('blockedTweets');
@@ -37,7 +35,6 @@
 
   // Extract tweet metadata from an article element
   function extractTweetInfo(articleEl) {
-    console.log('Extracting tweet info from article:');
     let tweetId = null;
     let author = null;
 
@@ -63,7 +60,6 @@
 
   // Decide whether to hide a tweet
   async function shouldHideTweet(text) {
-    console.log('Checking if tweet should be hidden:', text);
     // Check if filtering is enabled
     const { isEnabled } = await new Promise(res => chrome.storage.local.get({ isEnabled: false }, res));
     if (!isEnabled) {
@@ -77,7 +73,6 @@
       return false;
     }
 
-    console.log('[AEF] shouldHideTweet testing patterns for text', text.slice(0, 50));
     for (const re of QUICK_PATTERNS) {
       if (re.test(text)) {
         console.log('[AEF] shouldHideTweet: matched pattern', re);
@@ -85,14 +80,11 @@
       }
     }
     // Fallback to background classification
-    console.log('[AEF] shouldHideTweet: no regex match, sending for classification');
     try {
-      console.log("invoking service worker")
       const resp = await chrome.runtime.sendMessage({
         action: 'classifyTweet',
         text
       });
-      console.log("this will be returned - ", resp && resp.hide === true)
       return resp && resp.hide === true;
     } catch (err) {
       console.error('Error classifying tweet', err);
@@ -102,8 +94,6 @@
 
   // Process a single tweet article element
   async function processTweet(articleEl) {
-    console.log('[AEF] processTweet: received element');
-    console.log('Processing tweet article:');
     if (articleEl.__aefProcessed) return;
     articleEl.__aefProcessed = true;
 
@@ -113,7 +103,7 @@
 
     const hide = await shouldHideTweet(text);
     if (hide) {
-      console.log('[AEF] processTweet: tweet should be hidden');
+      console.log('[AEF] processTweet: tweet should be hidden -', text);
       await hideAndLog(articleEl, tweetInfo);
     } else {
       console.log('[AEF] processTweet: tweet is safe, not hiding');
@@ -122,17 +112,13 @@
 
   // Observe additions in timeline container
   function setupObserver() {
-    console.log('Setting up observer for timeline');
     let timeline = document.querySelector('[aria-label="Timeline: Your Home Timeline"]');
     if (!timeline) {
-      console.log('[AEF] setupObserver: primary selector failed, trying role=feed');
       timeline = document.querySelector('[role="feed"]');
     }
     if (!timeline) {
-      console.warn('[AEF] setupObserver: timeline container not found, falling back to document.body');
       timeline = document.body;
     }
-    console.log('[AEF] setupObserver: observing timeline');
 
     const observer = new MutationObserver((mutations) => {
       for (const { addedNodes } of mutations) {
