@@ -1,2 +1,8 @@
 .vscode/
 twitter.html
+.venv
+*.pyc
+__pycache__/
+.vscode
+*.sqlite3
+DS_Store
