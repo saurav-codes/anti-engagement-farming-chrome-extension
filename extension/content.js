@@ -18,7 +18,7 @@
     articleEl.style.display = 'none';
     try {
       const { blockedTweets = [] } = await chrome.storage.local.get('blockedTweets');
-      blockedTweets.unshift(tweetInfo);
+      if (!blockedTweets.some(t => t.id === tweetInfo.id)) blockedTweets.unshift(tweetInfo);
       await chrome.storage.local.set({ blockedTweets });
     } catch (err) {
       console.error('[AEF] content: failed to log blocked tweet, ' + err.message);
