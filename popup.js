@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!tweets || tweets.length === 0) {
       const li = document.createElement('li');
       li.className = 'empty';
-      li.textContent = '— No tweets hidden yet —';
+      li.textContent = 'No tweets hidden yet';
       logList.appendChild(li);
       return;
     }
@@ -56,11 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize UI state from storage
   chrome.storage.local.get(['isEnabled'], ({ isEnabled }) => {
-    console.log('[AEF] popup: isEnabled=', isEnabled);
     updateToggleUI(Boolean(isEnabled));
   });
   chrome.storage.local.get(['blockedTweets'], ({ blockedTweets }) => {
-    console.log('[AEF] popup: blockedTweets=', blockedTweets);
     updateLogUI(blockedTweets || []);
   });
 
