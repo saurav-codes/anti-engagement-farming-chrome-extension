@@ -1,14 +1,10 @@
 /**
  * Background service worker for Anti-Engagement-Farm
- * Listens for classification requests from the content script and
- * proxies them to a backend service. Caches results in memory to
- * avoid duplicate API calls.
+ * Thin proxy: forwards tweet classification requests to the local
+ * BERT ONNX backend and logs every model verdict.
  */
 
-const BACKEND_URL = 'http://localhost:8000/api/classify/'; // Local backend endpoint
-
-// Simple in-memory cache: text -> boolean (hide or not)
-const classificationCache = new Map();
+const BACKEND_URL = 'http://127.0.0.1:8000/api/classify/';
 
 // On extension install, initialize storage defaults
 chrome.runtime.onInstalled.addListener(() => {
@@ -21,42 +17,30 @@ chrome.runtime.onInstalled.addListener(() => {
 // Listen for messages from content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'classifyTweet' && typeof message.text === 'string') {
-    // Check if filtering is currently enabled
     chrome.storage.local.get('isEnabled', ({ isEnabled }) => {
       if (!isEnabled) {
-        // If user has turned off the filter, never hide
-        console.log("service worker: user disabled our extension so returning hide as false")
+        console.log('[AEF] service worker: filter disabled, returning hide=false');
         sendResponse({ hide: false });
-      } else {
-        // Otherwise, classify the tweet
-        classifyTweet(message.text)
-          .then(hide => sendResponse({ hide }))
-          .catch(error => {
-            console.error('Classification error:', error);
-            sendResponse({ hide: false });
-          });
+        return;
       }
+      classifyTweet(message.text)
+        .then(resp => sendResponse(resp))
+        .catch(error => {
+          console.error('[AEF] service worker: classification failed, ' + error.message);
+          sendResponse({ hide: false });
+        });
     });
-    // Returning true indicates we'll call sendResponse asynchronously
+    // Returning true keeps sendResponse valid for async use
     return true;
   }
 });
 
 /**
- * Sends the tweet text to the backend and returns whether to hide it.
- * Caches responses to avoid redundant network calls.
- *
- * @param {string} text - The full tweet text
- * @returns {Promise<boolean>} - True if the tweet should be hidden
+ * Posts the tweet text to the backend, logs the model verdict,
+ * and returns { hide, label, prob }. Returns { hide: false } on any failure.
  */
 async function classifyTweet(text) {
-  // Return cached result if available
-  if (classificationCache.has(text)) {
-    console.log('[AEF] classifyTweet: cache hit so returning cached result for:', text.slice(0, 50));
-    return classificationCache.get(text);
-  }
-
-  let shouldHide = false;
+  const snippet = text.slice(0, 50);
   try {
     const response = await fetch(BACKEND_URL, {
       method: 'POST',
@@ -65,16 +49,15 @@ async function classifyTweet(text) {
     });
 
     if (!response.ok) {
-          console.error('[AEF] Classification API returned status', response.status);
-    } else {
-          const result = await response.json();
-          console.log('[AEF] Classification API result:', result);
-          shouldHide = result.hide === true;
+      console.error('[AEF] service worker: backend returned status ' + response.status + ' for "' + snippet + '"');
+      return { hide: false };
     }
-  } catch (err) {
-    console.error('Error calling classification API:', err);
-  }
 
-  classificationCache.set(text, shouldHide);
-  return shouldHide;
+    const result = await response.json();
+    console.log('[AEF] service worker: model verdict label=' + result.label + ' prob=' + result.prob + ' ms=' + result.ms + ' for "' + snippet + '"');
+    return { hide: result.hide, label: result.label, prob: result.prob };
+  } catch (err) {
+    console.error('[AEF] service worker: fetch error for "' + snippet + '": ' + err.message);
+    return { hide: false };
+  }
 }
