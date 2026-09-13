@@ -50,6 +50,8 @@ Keep `start.sh` running while browsing. The extension needs the local server.
   <img src="benchmark.gif" alt="how the filter works" width="720" />
 </p>
 
+HD video: [benchmark.webm](benchmark.webm) (524 KB).
+
 Model and inference numbers, measured 2026-09-13 (details in `model/README.md`).
 
 | Metric | Value |
