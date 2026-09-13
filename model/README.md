@@ -14,9 +14,12 @@ __farmCollector.stop()        // stop scrolling
 __farmCollector.download()    // saves tweets.json
 ```
 
-Data survives refreshes (localStorage); run `start()` again to continue. Works in any Chromium browser, including ego-browser (the agent can drive the whole collection for you). Switch between Following / For You, accounts, and lists while collecting to vary the data; bait-heavy lists balance the positives (timelines are usually under 10% farming).
+Notes:
 
-Each tweet: `{id, author, text}`. Promoted posts are not filtered out; the teacher labels most of them true, which is fine for this task.
+- Resumable: data survives refreshes (localStorage). Run `start()` again to continue.
+- Any Chromium browser works, including ego-browser, where an agent can drive the whole collection for you.
+- Vary the data by switching between Following / For You, accounts, and lists. Bait-heavy lists balance the positives; timelines are usually under 10% farming.
+- Each tweet is saved as `{id, author, text}`. Promoted posts stay in; the teacher labels most of them true, which is fine for this task.
 
 ## 2. Label
 
