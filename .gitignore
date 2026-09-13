@@ -1,8 +1,13 @@
 .vscode/
-twitter.html
 .venv
-*.pyc
 __pycache__/
-.vscode
+*.pyc
 *.sqlite3
-DS_Store
+.DS_Store
+twitter.html
+model/model_out/
+model/tweets.json
+model/labeled.json
+model/test_tweets.json
+model/test_labeled.json
+model/eval_report*.txt
