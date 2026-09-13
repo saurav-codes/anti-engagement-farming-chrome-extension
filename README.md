@@ -14,10 +14,11 @@ A Manifest V3 Chrome extension that hides engagement-bait tweets ("like and retw
    ./start.sh
    ```
    First run creates `.venv`, installs dependencies, and downloads the ~42 MB int8 ONNX model from Hugging Face. Then it serves on http://127.0.0.1:8000.
-3. Open `chrome://extensions`, enable Developer mode, click "Load unpacked", and select the `extension/` folder.
-4. Open the popup, click Turn ON, and browse X.
+3. Open `chrome://extensions` and enable Developer mode.
+4. Click "Load unpacked" and select the `extension/` folder.
+5. Open the popup, click Turn ON, and browse X.
 
-Note: keep `start.sh` running while browsing. The extension needs the local server.
+Keep `start.sh` running while browsing. The extension needs the local server.
 
 ## How it works
 
