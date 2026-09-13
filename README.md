@@ -11,6 +11,14 @@
   <a href="https://huggingface.co/selftaughtdev/engagement-farm-classifier"><img src="https://img.shields.io/badge/model-HuggingFace-orange" alt="Model on HuggingFace" /></a>
 </p>
 
+## Demo
+
+<p align="center">
+  <img src="demo.gif" alt="walkthrough" />
+</p>
+
+Turn it on, browse X, watch the bait disappear from the scroll.
+
 ## Quick start
 
 1. Clone the repo and cd into it:
