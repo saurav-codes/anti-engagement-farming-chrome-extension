@@ -2,13 +2,6 @@
 
 A Manifest V3 Chrome extension that hides engagement-bait tweets ("like and retweet", "tag a friend", reply-bait questions) on twitter.com and x.com. Classification runs entirely on your machine: a fine-tuned BERT classifier (int8 ONNX, about 2 ms CPU per tweet), served by a local FastAPI server. No API keys, no cloud calls, no tracking. Fully open source, Apache-2.0.
 
-## How it works
-
-- `extension/content.js` observes tweets as they appear in the timeline.
-- `extension/service_worker.js` sends each tweet text to the local server.
-- `server.py` runs the ONNX model (downloaded from Hugging Face) and returns hide/label/prob.
-- The popup has the ON/OFF toggle and shows the log of hidden tweets.
-
 ## Quick start
 
 1. Clone the repo and cd into it:
@@ -25,6 +18,14 @@ A Manifest V3 Chrome extension that hides engagement-bait tweets ("like and retw
 4. Open the popup, click Turn ON, and browse X.
 
 Note: keep `start.sh` running while browsing. The extension needs the local server.
+
+## How it works
+
+- `extension/content.js` observes tweets as they appear in the timeline.
+- `extension/service_worker.js` sends each tweet text to the local server.
+- `server.py` runs the ONNX model (downloaded from Hugging Face) and returns hide/label/prob.
+- The popup has the ON/OFF toggle and shows the log of hidden tweets.
+
 
 ## Benchmarks
 
