@@ -28,7 +28,13 @@ pip install openai
 LABEL_API_KEY=... python label.py tweets.json --model kimi-k3
 ```
 
-Any OpenAI-compatible endpoint works (`--base-url` overrides; default is OpenAI's API). Batches 20 tweets per request with several batches in parallel (`--workers`, default 6), and writes `labeled.json` after every batch, so it is resumable (rerun skips done ids and retries null labels). Every row keeps the teacher's raw verdict plus confidence; the confidence cutoff is applied at training time (`train.py --min-confidence`, default 0.85). Roughly 10k tweets is one evening of scrolling and a few dollars of labeling.
+Facts:
+
+- Any OpenAI-compatible endpoint works. `--base-url` overrides; the default is OpenAI's API.
+- 20 tweets per request, with several batches in parallel (`--workers`, default 6).
+- Resumable: `labeled.json` is written after every batch. Rerunning skips done ids and retries null labels.
+- Every row keeps the teacher's raw verdict plus confidence. The confidence cutoff is applied at training time (`train.py --min-confidence`, default 0.85).
+- Scale: roughly 10k tweets is one evening of scrolling and a few dollars of labeling.
 
 ## 3. Train
 
