@@ -51,7 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     list.forEach(tweet => {
       const li = document.createElement('li');
-      li.className = 'card';
+      const a = document.createElement('a');
+      a.className = 'card';
+      if (tweet.id && tweet.author) {
+        a.href = `https://x.com/${tweet.author}/status/${tweet.id}`;
+        a.target = '_blank';
+        a.rel = 'noreferrer noopener';
+      }
       const snippet = document.createElement('div');
       snippet.className = 'snippet';
       snippet.textContent = `"${tweet.snippet || ''}"`;
@@ -61,7 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
       meta.textContent = tweet.timestamp
         ? `${author} · ${timeAgo(tweet.timestamp)}`
         : author;
-      li.append(snippet, meta);
+      a.append(snippet, meta);
+      li.appendChild(a);
       logList.appendChild(li);
     });
   }

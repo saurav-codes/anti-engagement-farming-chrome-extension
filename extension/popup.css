@@ -149,12 +149,23 @@ body.off .off-view {
   padding: 0 16px;
 }
 
-/* Blocked tweet card */
+/* Blocked tweet card (anchor wraps the card content) */
 .card {
   background: var(--surface);
   border-radius: 10px;
   padding: 12px 14px;
   margin: 0 0 8px;
+}
+
+a.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+a.card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .card > div {
