@@ -17,7 +17,7 @@
   <img src="demo.gif" alt="walkthrough" />
 </p>
 
-Turn it on, browse X, watch the bait disappear from the scroll.
+Turn it on, browse X, watch the bait disappear from the scroll. Full video: [demo.mp4](demo.mp4) (2.6 MB).
 
 ## Quick start
 
