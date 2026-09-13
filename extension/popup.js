@@ -1,19 +1,22 @@
 /**
  * Popup script for Anti-Engagement-Farm
- * Wires up the toggle button, displays the blocked tweets log, and handles clearing the log.
+ * Wires up the switch, renders the blocked tweets log, and handles clearing the log.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('[AEF] popup: DOMContentLoaded');
-  const toggleButton = document.getElementById('toggleButton');
+  const toggleInput = document.getElementById('toggleInput');
   const clearButton = document.getElementById('clearButton');
   const logList = document.getElementById('logList');
+  const blockCount = document.getElementById('blockCount');
+  const hoverHl = document.getElementById('hoverHl');
 
-  // Update the toggle button UI based on whether filtering is enabled
+  // Reflect enabled state on the switch and body class
   function updateToggleUI(isEnabled) {
-    toggleButton.textContent = isEnabled ? 'Turn OFF' : 'Turn ON';
-    toggleButton.classList.toggle('toggle-on', isEnabled);
-    toggleButton.classList.toggle('toggle-off', !isEnabled);
+    toggleInput.checked = isEnabled;
+    document.body.classList.toggle('on', isEnabled);
+    document.body.classList.toggle('off', !isEnabled);
+    console.log('[AEF] popup: state flipped to ' + (isEnabled ? 'on' : 'off'));
   }
 
   // Format a timestamp into a relative "time ago" string
@@ -34,22 +37,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Render the list of blocked tweets in the popup
+  // Render the blocked tweets list and the count
   function updateLogUI(tweets) {
     logList.innerHTML = '';
-    if (!tweets || tweets.length === 0) {
+    const list = tweets || [];
+    blockCount.textContent = String(list.length);
+    if (list.length === 0) {
       const li = document.createElement('li');
       li.className = 'empty';
-      li.textContent = 'No tweets hidden yet';
+      li.textContent = 'Nothing blocked yet';
       logList.appendChild(li);
       return;
     }
-    tweets.forEach(tweet => {
+    list.forEach(tweet => {
       const li = document.createElement('li');
+      li.className = 'card';
+      const snippet = document.createElement('div');
+      snippet.className = 'snippet';
+      snippet.textContent = `"${tweet.snippet || ''}"`;
+      const meta = document.createElement('div');
+      meta.className = 'meta';
       const author = tweet.author ? `@${tweet.author}` : '';
-      const snippet = tweet.snippet || '';
-      const time = tweet.timestamp ? ` (${timeAgo(tweet.timestamp)})` : '';
-      li.textContent = `${author}: "${snippet}"${time}`;
+      meta.textContent = tweet.timestamp
+        ? `${author} · ${timeAgo(tweet.timestamp)}`
+        : author;
+      li.append(snippet, meta);
       logList.appendChild(li);
     });
   }
@@ -62,14 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
     updateLogUI(blockedTweets || []);
   });
 
-  // Handle toggle button clicks
-  toggleButton.addEventListener('click', () => {
-    console.log('[AEF] popup: toggle clicked');
-    chrome.storage.local.get(['isEnabled'], ({ isEnabled }) => {
-      const newState = !isEnabled;
-      chrome.storage.local.set({ isEnabled: newState }, () => {
-        updateToggleUI(newState);
-      });
+  // Handle switch flips
+  toggleInput.addEventListener('change', () => {
+    console.log('[AEF] popup: toggle flipped');
+    const newState = toggleInput.checked;
+    chrome.storage.local.set({ isEnabled: newState }, () => {
+      updateToggleUI(newState);
     });
   });
 
@@ -79,5 +89,20 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.local.set({ blockedTweets: [] }, () => {
       updateLogUI([]);
     });
+  });
+
+  // Fluid hover: one highlight glides between cards via transform
+  logList.addEventListener('mousemove', (e) => {
+    const card = e.target.closest('.card');
+    if (!card) {
+      hoverHl.style.opacity = '0';
+      return;
+    }
+    hoverHl.style.height = card.offsetHeight + 'px';
+    hoverHl.style.transform = `translateY(${card.offsetTop}px)`;
+    hoverHl.style.opacity = '1';
+  });
+  logList.addEventListener('mouseleave', () => {
+    hoverHl.style.opacity = '0';
   });
 });

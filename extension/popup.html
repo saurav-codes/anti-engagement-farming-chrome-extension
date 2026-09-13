@@ -7,20 +7,47 @@
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <div class="popup-container">
-    <button id="toggleButton" class="toggle-off">
-      Turn ON
-    </button>
+  <header class="head">
+    <div class="count-block">
+      <span id="blockCount" class="count">0</span>
+      <span class="count-label">tweets blocked</span>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="toggleInput" />
+      <span class="knob"></span>
+    </label>
+  </header>
 
-    <section class="log-section">
-      <h2>Blocked Tweets</h2>
-      <ul id="logList" class="log-list">
-        <li class="empty">No tweets hidden yet</li>
-      </ul>
-      <button id="clearButton" class="clear-button">
-        Clear Log
-      </button>
-    </section>
+  <div class="on-view">
+    <div class="list-scroll" id="listScroll">
+      <div class="hover-hl" id="hoverHl"></div>
+      <ul id="logList"></ul>
+    </div>
+    <footer class="foot">
+      <button id="clearButton" type="button">Clear log</button>
+    </footer>
+  </div>
+
+  <div class="off-view">
+    <svg class="off-art" width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+      <text x="88" y="30" font-size="13" fill="#B9BDC2">z</text>
+      <text x="100" y="18" font-size="10" fill="#C9CCD0">z</text>
+      <text x="108" y="42" font-size="8" fill="#D4D7DB">z</text>
+      <g transform="rotate(-14 60 40)">
+        <rect x="38" y="32" width="44" height="8" rx="4" fill="#C2C6CB"/>
+        <rect x="52" y="26" width="16" height="6" rx="3" fill="#C2C6CB"/>
+      </g>
+      <path d="M36 48 h48 l-5 44 a6 6 0 0 1 -6 5 h-26 a6 6 0 0 1 -6 -5 z" fill="#D8DBDF"/>
+      <rect x="45" y="56" width="4" height="32" rx="2" fill="#C2C6CB"/>
+      <rect x="58" y="56" width="4" height="32" rx="2" fill="#C2C6CB"/>
+      <rect x="71" y="56" width="4" height="32" rx="2" fill="#C2C6CB"/>
+      <path d="M44 62 h32" stroke="#202124" stroke-width="3"/>
+      <rect x="44" y="58" width="13" height="9" rx="4" fill="#202124"/>
+      <rect x="63" y="58" width="13" height="9" rx="4" fill="#202124"/>
+      <path d="M56 74 q4 4 8 0" stroke="#787774" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </svg>
+    <h1>Let the engagement farming losers cook...</h1>
+    <p>Extension is turned off.</p>
   </div>
 
   <script src="popup.js"></script>
