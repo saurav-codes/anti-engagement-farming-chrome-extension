@@ -53,11 +53,17 @@ Fine-tunes `google/bert_uncased_L-4_H-256_A-4` (BERT-mini, 11M params) by defaul
 
 ## Results (2026-09-13)
 
-12,506 tweets collected (timeline scrolling plus ~36 bait-phrase search queries covering explicit CTAs, subtle question bait, giveaways, reply chains, and greeting filler), labeled by kimi-k3, 7,766 usable at 0.85 confidence (1,706 farming) after text dedupe.
+- 12,506 tweets collected: timeline scrolling plus ~36 bait-phrase search queries (explicit CTAs, subtle question bait, giveaways, reply chains, greeting filler).
+- Labeled by kimi-k3. 7,766 usable at 0.85 confidence (1,706 farming) after text dedupe.
+- Serving model: `google/bert_uncased_L-8_H-512_A-8` (BERT-medium, 32M params), 6 epochs.
+- Validation (777 rows, 189 farming): precision 0.98, recall 0.90, F1 0.94 at threshold 0.5.
 
-Serving model: `google/bert_uncased_L-8_H-512_A-8` (BERT-medium, 32M params), 6 epochs. Validation (777 rows, 189 farming): precision 0.98, recall 0.90, F1 0.94 at threshold 0.5.
+Held-out benchmark (`test_labeled.json`):
 
-Held-out benchmark (`test_labeled.json`, 273 fresh timeline tweets with zero id/text overlap with training, 15 farming): precision 1.00 with zero false positives, recall 0.67 at threshold 0.3, 0.47 at the default 0.5. The test positives are the subtle, timeline-native kind (rhetorical "how many of you" questions, greeting fillers), so this recall is the realistic number. Since a false positive hides a genuine tweet, ship at threshold 0.5 and treat lower thresholds as a tunable knob.
+- 273 fresh timeline tweets, 15 farming, zero id/text overlap with training.
+- Precision 1.00 (zero false positives). Recall 0.67 at threshold 0.3, 0.47 at the default 0.5.
+- The test positives are the subtle, timeline-native kind (rhetorical "how many of you" questions, greeting fillers), so this recall is the realistic number.
+- Ship at threshold 0.5: a false positive hides a genuine tweet. Treat lower thresholds as a tunable knob.
 
 Artifact: `model_out/onnx-int8/` int8 ONNX, 42 MB, single-tweet CPU latency mean 1.9 ms, p95 2.7 ms. `eval.py --labeled test_labeled.json --full` reruns the held-out sweep.
 
