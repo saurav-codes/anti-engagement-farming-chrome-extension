@@ -1,17 +1,9 @@
 // Content script for Anti-Engagement-Farm
-// Observes new tweets on the page, applies a quick regex filter, optionally delegates to background for classification,
-// hides the tweet if it is engagement bait, and logs hidden tweets to storage.
+// Observes new tweets on the page, delegates classification to the service
+// worker (which proxies the local model), hides engagement bait, and logs it.
 
 (() => {
-  console.log('[AEF] content script loaded');
-  const QUICK_PATTERNS = [
-    /like\s*(and|&|or)?\s*retweet/i,
-    /retweet\s*if/i,
-    /tag\s*a\s*friend/i,
-    /comment\s*(below|if)/i,
-    /share\s*(this|if)/i,
-    /follow\s*(for|and)/i
-  ];
+  console.log('[AEF] content: script loaded');
 
   const MAX_SNIPPET_LENGTH = 100;
 
@@ -29,7 +21,7 @@
       blockedTweets.unshift(tweetInfo);
       await chrome.storage.local.set({ blockedTweets });
     } catch (err) {
-      console.error('Failed to log blocked tweet', err);
+      console.error('[AEF] content: failed to log blocked tweet, ' + err.message);
     }
   }
 
@@ -37,7 +29,6 @@
   function extractTweetInfo(articleEl) {
     let tweetId = null;
     let author = null;
-
 
     // Find link with status in href
     const link = articleEl.querySelector('a[href*="/status/"]');
@@ -58,37 +49,22 @@
     return { id: tweetId, author, snippet, timestamp };
   }
 
-  // Decide whether to hide a tweet
+  // Decide whether to hide a tweet: enabled check, then ask the service worker
   async function shouldHideTweet(text) {
-    // Check if filtering is enabled
     const { isEnabled } = await new Promise(res => chrome.storage.local.get({ isEnabled: false }, res));
     if (!isEnabled) {
-      console.log('[AEF] shouldHideTweet: filter disabled; skipping');
-      return false;
+      console.log('[AEF] content: filter disabled, skipping');
+      return null;
     }
 
-    // dont process long tweets
-    if (text.length > MAX_SNIPPET_LENGTH) {
-      console.log('[AEF] shouldHideTweet: text too long (' + text.length + '), skipping classification');
-      return false;
-    }
-
-    for (const re of QUICK_PATTERNS) {
-      if (re.test(text)) {
-        console.log('[AEF] shouldHideTweet: matched pattern', re);
-        return true;
-      }
-    }
-    // Fallback to background classification
     try {
-      const resp = await chrome.runtime.sendMessage({
+      return await chrome.runtime.sendMessage({
         action: 'classifyTweet',
         text
       });
-      return resp && resp.hide === true;
     } catch (err) {
-      console.error('Error classifying tweet', err);
-      return false;
+      console.error('[AEF] content: classification error, ' + err.message);
+      return null;
     }
   }
 
@@ -101,12 +77,10 @@
     const tweetInfo = extractTweetInfo(articleEl);
     if (!tweetInfo.id) return;
 
-    const hide = await shouldHideTweet(text);
-    if (hide) {
-      console.log('[AEF] processTweet: tweet should be hidden -', text);
+    const resp = await shouldHideTweet(text);
+    if (resp && resp.hide === true) {
+      console.log('[AEF] content: tweet hidden, label=' + resp.label + ' prob=' + resp.prob);
       await hideAndLog(articleEl, tweetInfo);
-    } else {
-      console.log('[AEF] processTweet: tweet is safe, not hiding');
     }
   }
 
