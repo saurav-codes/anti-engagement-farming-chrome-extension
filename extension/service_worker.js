@@ -35,6 +35,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+// Flip the toolbar icon when filtering toggles
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes.isEnabled) {
+    const variant = changes.isEnabled.newValue ? 'logo-on' : 'logo-off';
+    chrome.action.setIcon({
+      path: {
+        16: `icons/${variant}-16.png`,
+        32: `icons/${variant}-32.png`,
+        48: `icons/${variant}-48.png`,
+        128: `icons/${variant}-128.png`
+      }
+    });
+    console.log('[AEF] service worker: toolbar icon flipped to ' + variant);
+  }
+});
+
 /**
  * Posts the tweet text to the backend, logs the model verdict,
  * and returns { hide, label, prob }. Returns { hide: false } on any failure.

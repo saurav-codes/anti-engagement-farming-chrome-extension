@@ -23,13 +23,21 @@ const storage = {
 };
 
 let messageHandler;
+let onChangedHandler;
+let iconPath = [];
 globalThis.chrome = {
-  storage: { local: storage },
+  storage: {
+    local: storage,
+    onChanged: { addListener: (cb) => { onChangedHandler = cb; } }
+  },
+  action: {
+    setIcon: (opts, cb) => { iconPath = Object.values(opts.path); if (cb) cb(); }
+  },
   runtime: {
     onInstalled: { addListener: (cb) => { messageHandler = null; cb(); } },
     onMessage: { addListener: (cb) => { messageHandler = cb; } },
     sendMessage: (msg) => new Promise(res => {
-      messageHandler(msg, {}, (r) => { res(r); });
+      messageHandler(msg, {}, (r) => { res(r); })
     })
   }
 };
@@ -71,6 +79,19 @@ async function run() {
   const disabled = await send('please like and retweet this bait post');
   assert.strictEqual(disabled.hide, false);
   assert.strictEqual(fetchCalls, before);
+
+  // Icon flips to logo-on when filtering is enabled
+  onChangedHandler({ isEnabled: { newValue: true } }, 'local');
+  assert.ok(iconPath.every(p => p.includes('logo-on')));
+
+  // Icon flips to logo-off when filtering is disabled
+  onChangedHandler({ isEnabled: { newValue: false } }, 'local');
+  assert.ok(iconPath.every(p => p.includes('logo-off')));
+
+  // Other storage keys never flip the icon
+  iconPath = [];
+  onChangedHandler({ blockedTweets: { newValue: [] } }, 'local');
+  assert.deepStrictEqual(iconPath, []);
 
   console.log('smoke: all assertions passed');
 }
