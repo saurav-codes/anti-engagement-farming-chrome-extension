@@ -1,8 +1,15 @@
-# Anti-Engagement-Farm
+<p align="center">
+  <img src="extension/icons/logo-on-128.png" alt="logo" width="96" />
+</p>
 
-<p align="center"><img src="extension/icons/logo-on-128.png" alt="logo" width="96" /></p>
+<h1 align="center">Anti-Engagement-Farm</h1>
 
-A Manifest V3 Chrome extension that hides engagement-bait tweets ("like and retweet", "tag a friend", reply-bait questions) on twitter.com and x.com. Classification runs entirely on your machine: a fine-tuned BERT classifier (int8 ONNX, about 2 ms CPU per tweet), served by a local FastAPI server. No API keys, no cloud calls, no tracking. Fully open source, Apache-2.0.
+<p align="center">Hides engagement-bait tweets on X with a 2 ms local classifier. No API keys, fully open source.</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0" /></a>
+  <a href="https://huggingface.co/selftaughtdev/engagement-farm-classifier"><img src="https://img.shields.io/badge/model-HuggingFace-orange" alt="Model on HuggingFace" /></a>
+</p>
 
 ## Quick start
 
